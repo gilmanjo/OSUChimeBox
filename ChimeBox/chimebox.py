@@ -1,14 +1,178 @@
-import RPi.GPIO as GPIO
+import Image
+import Adafruit_ILI9341 as TFT
+import Adafruit_GPIO as GPIO
+import Adafruit_GPIO.SPI as SPI
+import sys
+import pygame as pg
+import os
 import time
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(16, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-GPIO.add_event_detect(16, GPIO.RISING)
-GPIO.setup(24, GPIO.OUT)
+PIN_PWR_BTN = 3
+PIN_S0 = 4
+PIN_S1 = 17
+PIN_S2 = 27
+PIN_TFT_DC = 22
+PIN_TFT_RESET = 23
+PIN_BR0 = 24
+PIN_BR1 = 25
+PIN_BR2 = 5
+PIN_BC0 = 6
+PIN_BC1 = 12
 
-while True:
-	
-	time.sleep(0.03)
+LIGHT_0_MUX = (0, 0, 0)
+LIGHT_1_MUX = (0, 0, 1)
+LIGHT_2_MUX = (0, 1, 0)
+LIGHT_3_MUX = (0, 1, 1)
+LIGHT_4_MUX = (1, 0, 0)
+LIGHT_5_MUX = (1, 0, 1)
+LIGHT_PWR_MUX = (1, 1, 0)
+LIGHT_NONE = (1, 1, 1)
 
-	if GPIO.event_detected(16):
-		GPIO.output(24, GPIO.input(24))
+SPI_PORT = 0
+SPI_DEVICE = 0
+
+SONG_END = pg.USEREVENT + 1
+
+CHIME_FN_CHAINSAW = "chainsaw.mp3"
+CHIME_FN_FIGHT_SONG = "fight_song.mp3"
+CHIME_FN_FIRST_DOWN = "first_down.mp3"
+CHIME_FN_HYPE = "hype.mp3"
+CHIME_FN_OSU = "osu.mp3"
+CHIME_FN_TOUCHDOWN = "touchdown.mp3"
+
+AY_LIGHT = (LIGHT_0_MUX, LIGHT_1_MUX
+	LIGHT_2_MUX, LIGHT_3_MUX,
+	LIGHT_4_MUX, LIGHT_5_MUX)
+AY_CHIME = (CHIME_FN_CHAINSAW, CHIME_FN_FIGHT_SONG,
+	CHIME_FN_FIRST_DOWN, CHIME_FN_HYPE,
+	CHIME_FN_OSU, CHIME_FN_TOUCHDOWN)
+
+class MusicPlayer(object):
+	def __init__(self):
+		super(MusicPlayer, self).__init__()
+		self.freq = 44100
+		self.bitsize = -16
+		self.channels = 2
+		self.buffer = 2048
+
+	def play_audio(self, audio_file):
+		clock = pg.time.Clock()
+		pg.mixer.music.set_endevent(SONG_END)
+		pg.mixer.music.set_volume(1.0)
+		pg.mixer.music.load(audio_file)
+		pg.mixer.music.play()
+
+	def playing(self):
+		for event in pg.event.get():
+			if event.type == SONG_END:
+				return False
+		return True
+
+class LightController(object):
+	def __init__(self):
+		super(LightController, self).__init__()
+
+	def reset(self):
+		pass
+
+	def pulse(self, num):
+		pass
+		
+class ButtonController(object):
+	def __init__(self):
+		super(ButtonController, self).__init__()
+		GPIO.output(PIN_BR0, 1)
+		GPIO.output(PIN_BR1, 1)
+		GPIO.output(PIN_BR2, 1)
+
+	def check_button_matrix(self):
+		GPIO.output(PIN_BR0, 0)
+		if GPIO.input(PIN_BC0) == 0:
+			return 0
+		elif GPIO.input(PIN_BC1) == 0:
+			return 1
+
+		GPIO.output(PIN_BR0, 1)
+		GPIO.output(PIN_BR1, 0)
+		if GPIO.input(PIN_BC0) == 0:
+			return 2
+		elif GPIO.input(PIN_BC1) == 0:
+			return 3
+
+		GPIO.output(PIN_BR1, 1)
+		GPIO.output(PIN_BR2, 0)
+		if GPIO.input(PIN_BC0) == 0:
+			return 4
+		elif GPIO.input(PIN_BC1) == 0:
+			return 5
+
+		GPIO.output(PIN_BR2, 1)
+		return -1
+		
+class Display(object):
+	def __init__(self):
+		super(Display, self).__init__()
+
+	def reset(self):
+		pass
+
+	def show_img(self, img_num):
+		pass
+		
+class ChimeBox(object):
+	def __init__(self):
+		super(ChimeBox, self).__init__()
+
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(PIN_PWR_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(PIN_BR0, GPIO.OUT)
+		GPIO.setup(PIN_BR1, GPIO.OUT)
+		GPIO.setup(PIN_BR2, GPIO.OUT)
+		GPIO.setup(PIN_BC0, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(PIN_BC1, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+		GPIO.setup(PIN_S0, GPIO.OUT)
+		GPIO.setup(PIN_S1, GPIO.OUT)
+		GPIO.setup(PIN_S2, GPIO.OUT)
+
+		self.music_player = MusicPlayer()
+		self.lights = LightController()
+		self.buttons = ButtonController()
+		self.display = Display()
+
+	def run(self):
+		
+		while True:
+			try:
+				time.sleep(0.02)
+				pressed_button = self.buttons.check_button_matrix()
+				self.button_pressed(pressed_button)
+				
+				if self.buttons.check_pwr_button():
+					GPIO.cleanup()
+
+			except KeyboardInterrupt:
+				print("Exiting...")
+				GPIO.cleanup()
+				quit()
+
+	def button_pressed(self, button_num):
+		
+		if button_num == -1:
+			return
+
+		self.music_player.play_audio(AY_CHIME[button_num])
+		self.display.show_img(button_num)
+
+		while self.music_player.playing():
+			time.sleep(0.02)
+			self.lights.pulse(button_num)
+
+		self.lights.reset()
+		self.display.reset()
+
+	def check_pwr_button(self):
+		return not GPIO.input(PIN_PWR_BTN)
+
+if __name__ == '__main__':
+	chimebox = ChimeBox()
+	chimebox.run()
