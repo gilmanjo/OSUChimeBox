@@ -36,8 +36,6 @@ LIGHT_NONE = (1, 1, 1)
 SPI_PORT = 0
 SPI_DEVICE = 0
 
-SONG_END = pg.USEREVENT + 1
-
 FULL_PATH = "/home/pi/OSUChimeBox/ChimeBox/"
 CHIME_FN_CHAINSAW = FULL_PATH + "chainsaw.mp3"
 CHIME_FN_FIGHT_SONG = FULL_PATH + "fight_song.mp3"
@@ -245,7 +243,7 @@ class ChimeBox(object):
 				if self.buttons.check_pwr_button():
 					print("CHIME BOX:: Powering off...")
 					self._deinit(light_thread)
-					subprocess.call(["shutdown", "-h", "now"], shell=False)
+					subprocess.call(["sudo shutdown", "-h", "now"], shell=False)
 					quit()
 
 			except KeyboardInterrupt:
