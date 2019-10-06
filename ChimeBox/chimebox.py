@@ -118,6 +118,8 @@ class LightController(object):
 		if self.pulse_active:
 			self._set_light(num)
 
+		self._set_pwr_light()
+
 	def run(self):
 		while True:
 			time.sleep(0.01)
@@ -152,7 +154,7 @@ class ButtonController(object):
 		GPIO.output(PIN_BR1, 0)
 		GPIO.output(PIN_BR2, 0)
 
-	def check_button_matrix(self):
+	def check_button_matrix(self, channel):
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 1)
