@@ -100,7 +100,7 @@ class LightController(object):
 			self.lock.acquire()
 			state = self.state
 			self.lock.release()
-			if state = LightState.QUIT:
+			if state == LightState.QUIT:
 				quit()
 			time.sleep(0.02)
 			self._set_light(0)
