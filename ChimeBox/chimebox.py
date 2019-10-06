@@ -65,10 +65,7 @@ class MusicPlayer(object):
 		pg.mixer.music.play()
 
 	def playing(self):
-		for event in pg.event.get():
-			if event.type == SONG_END:
-				return False
-		return True
+		return pg.mixer.music.get_busy()
 
 class LightController(object):
 	def __init__(self):
@@ -134,6 +131,7 @@ class ChimeBox(object):
 	def __init__(self):
 		super(ChimeBox, self).__init__()
 
+		print("initializing chime box...")
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(PIN_PWR_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 		GPIO.setup(PIN_BR0, GPIO.OUT)
@@ -151,7 +149,7 @@ class ChimeBox(object):
 		self.display = Display()
 
 	def run(self):
-		
+		print("chime box running")
 		while True:
 			try:
 				time.sleep(0.02)
