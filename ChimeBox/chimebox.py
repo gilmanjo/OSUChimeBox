@@ -1,6 +1,7 @@
-import Image
+from PIL import Image
 import Adafruit_ILI9341 as TFT
-import Adafruit_GPIO as GPIO
+import Adafruit_GPIO as AGPIO
+import RPi.GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
 import sys
 import pygame as pg
@@ -40,7 +41,7 @@ CHIME_FN_HYPE = "hype.mp3"
 CHIME_FN_OSU = "osu.mp3"
 CHIME_FN_TOUCHDOWN = "touchdown.mp3"
 
-AY_LIGHT = (LIGHT_0_MUX, LIGHT_1_MUX
+AY_LIGHT = (LIGHT_0_MUX, LIGHT_1_MUX,
 	LIGHT_2_MUX, LIGHT_3_MUX,
 	LIGHT_4_MUX, LIGHT_5_MUX)
 AY_CHIME = (CHIME_FN_CHAINSAW, CHIME_FN_FIGHT_SONG,
@@ -108,6 +109,9 @@ class ButtonController(object):
 
 		GPIO.output(PIN_BR2, 1)
 		return -1
+
+	def check_pwr_button(self):
+		return not GPIO.input(PIN_PWR_BTN)
 		
 class Display(object):
 	def __init__(self):
@@ -169,9 +173,6 @@ class ChimeBox(object):
 
 		self.lights.reset()
 		self.display.reset()
-
-	def check_pwr_button(self):
-		return not GPIO.input(PIN_PWR_BTN)
 
 if __name__ == '__main__':
 	chimebox = ChimeBox()
