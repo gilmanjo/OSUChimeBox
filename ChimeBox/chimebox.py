@@ -98,7 +98,20 @@ class LightController(object):
 		pass
 
 	def idle(self):
-		pass
+		time.sleep(1)
+		self._set_light(0)
+		time.sleep(1)
+		self._set_light(1)
+		time.sleep(1)
+		self._set_light(2)
+		time.sleep(1)
+		self._set_light(3)
+		time.sleep(1)
+		self._set_light(4)
+		time.sleep(1)
+		self._set_light(5)
+		time.sleep(1)
+		self._set_pwr_light()
 
 	def pulse(self, num):
 		pass
@@ -110,22 +123,14 @@ class LightController(object):
 			self.lock.release()
 			if state == LightState.QUIT:
 				quit()
-			elif state == LightState.QUIT
-			time.sleep(1)
-			self._set_light(0)
-			time.sleep(1)
-			self._set_light(1)
-			time.sleep(1)
-			self._set_light(2)
-			time.sleep(1)
-			self._set_light(3)
-			time.sleep(1)
-			self._set_light(4)
-			time.sleep(1)
-			self._set_light(5)
-			time.sleep(1)
-			self._set_pwr_light()
-
+			elif state == LightState.IDLE:
+				self.idle()
+			elif state == LightState.PULSE:
+				self.lock.acquire()
+				light_num = self.pulser
+				self.lock.release() 
+				self.pulse(light_num)
+			
 class ButtonController(object):
 	def __init__(self):
 		super(ButtonController, self).__init__()
