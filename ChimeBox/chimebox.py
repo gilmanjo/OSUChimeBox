@@ -245,7 +245,6 @@ class ChimeBox(object):
 
 				if self.buttons.selected_button != -1:
 					self.button_pressed(self.buttons.selected_button)
-					self.buttons.selected_button = -1
 				
 				if self.buttons.check_pwr_button():
 					print("CHIME BOX:: Powering off...")
@@ -263,6 +262,7 @@ class ChimeBox(object):
 		if button_num == -1:
 			return
 
+		self.buttons.selected_button = -1
 		self.music_player.play_audio(AY_CHIME[button_num])
 		self.display.show_img(button_num)
 		self.lock.acquire()
