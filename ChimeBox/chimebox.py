@@ -4,6 +4,7 @@ import Adafruit_GPIO as AGPIO
 import RPi.GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
 import sys
+import enum
 import pygame as pg
 import os
 import subprocess
