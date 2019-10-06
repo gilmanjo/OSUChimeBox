@@ -38,12 +38,13 @@ SPI_DEVICE = 0
 
 SONG_END = pg.USEREVENT + 1
 
-CHIME_FN_CHAINSAW = "chainsaw.mp3"
-CHIME_FN_FIGHT_SONG = "fight_song.mp3"
-CHIME_FN_FIRST_DOWN = "first_down.mp3"
-CHIME_FN_HYPE = "hype.mp3"
-CHIME_FN_OSU = "osu.mp3"
-CHIME_FN_TOUCHDOWN = "touchdown.mp3"
+FULL_PATH = "/home/pi/OSUChimeBox/ChimeBox/"
+CHIME_FN_CHAINSAW = FULL_PATH + "chainsaw.mp3"
+CHIME_FN_FIGHT_SONG = FULL_PATH + "fight_song.mp3"
+CHIME_FN_FIRST_DOWN = FULL_PATH + "first_down.mp3"
+CHIME_FN_HYPE = FULL_PATH + "hype.mp3"
+CHIME_FN_OSU = FULL_PATH + "osu.mp3"
+CHIME_FN_TOUCHDOWN = FULL_PATH + "touchdown.mp3"
 
 AY_LIGHT = (LIGHT_0_MUX, LIGHT_1_MUX,
 	LIGHT_2_MUX, LIGHT_3_MUX,
@@ -150,7 +151,6 @@ class ButtonController(object):
 
 	def _update_selection(self, num):
 		self.selected_button = num
-		print("update to num: " + str(num))
 		GPIO.output(PIN_BR0, 0)
 		GPIO.output(PIN_BR1, 0)
 		GPIO.output(PIN_BR2, 0)
