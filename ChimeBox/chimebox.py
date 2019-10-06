@@ -84,7 +84,6 @@ class LightController(object):
 		self.lock = lock
 
 	def _set_light(self, light_num):
-		print("LIGHT CONTROLLER:: setting light " + str(light_num))
 		GPIO.output(PIN_S0, AY_LIGHT[light_num][0])
 		GPIO.output(PIN_S1, AY_LIGHT[light_num][1])
 		GPIO.output(PIN_S2, AY_LIGHT[light_num][2])
@@ -98,19 +97,12 @@ class LightController(object):
 		pass
 
 	def idle(self):
-		time.sleep(0.01)
 		self._set_light(0)
-		time.sleep(0.01)
 		self._set_light(1)
-		time.sleep(0.01)
 		self._set_light(2)
-		time.sleep(0.01)
 		self._set_light(3)
-		time.sleep(0.01)
 		self._set_light(4)
-		time.sleep(0.01)
 		self._set_light(5)
-		time.sleep(0.01)
 		self._set_pwr_light()
 
 	def pulse(self, num):
