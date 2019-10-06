@@ -258,6 +258,7 @@ class ChimeBox(object):
 			return
 
 		self.buttons.selected_button = -1
+
 		self.music_player.play_audio(AY_CHIME[button_num])
 		self.display.show_img(button_num)
 		self.lock.acquire()
@@ -267,7 +268,6 @@ class ChimeBox(object):
 
 		while self.music_player.playing() and self.buttons.selected_button != button_num:
 			time.sleep(0.01)
-			self.lights.pulse(button_num)
 
 		self.music_player.stop_audio()
 		self.lock.acquire()
@@ -275,6 +275,8 @@ class ChimeBox(object):
 		self.lock.release()
 		self.lights.reset()
 		self.display.reset()
+
+		self.buttons.selected_button = -1
 
 if __name__ == '__main__':
 	chimebox = ChimeBox()
