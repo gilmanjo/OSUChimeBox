@@ -142,7 +142,6 @@ class ButtonController(object):
 		GPIO.output(PIN_BR0, 0)
 		GPIO.output(PIN_BR1, 0)
 		GPIO.output(PIN_BR2, 0)
-		self.debounce = timer()
 		self.selected_button = -1
 
 		GPIO.add_event_detect(PIN_BC0, GPIO.FALLING, callback=self.check_button_matrix, bouncetime=200)
@@ -150,6 +149,7 @@ class ButtonController(object):
 
 	def _update_selection(self, num):
 		self.selected_button = num
+		print("update to num: " + str(num))
 		GPIO.output(PIN_BR0, 0)
 		GPIO.output(PIN_BR1, 0)
 		GPIO.output(PIN_BR2, 0)
@@ -158,11 +158,6 @@ class ButtonController(object):
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 1)
-
-		if (timer() - self.debounce < 0.6):
-			return
-
-		self.debounce = timer()
 
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
