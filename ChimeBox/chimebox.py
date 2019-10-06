@@ -4,7 +4,7 @@ import Adafruit_GPIO as AGPIO
 import RPi.GPIO as GPIO
 import Adafruit_GPIO.SPI as SPI
 import sys
-import enum
+from enum import Enum
 import pygame as pg
 import os
 import subprocess
@@ -51,7 +51,7 @@ AY_CHIME = (CHIME_FN_CHAINSAW, CHIME_FN_FIGHT_SONG,
 	CHIME_FN_FIRST_DOWN, CHIME_FN_HYPE,
 	CHIME_FN_OSU, CHIME_FN_TOUCHDOWN)
 
-class LightState(enum):
+class LightState(Enum):
 	IDLE = 1
 	PULSE = 2
 
