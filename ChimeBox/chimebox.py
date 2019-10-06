@@ -84,10 +84,9 @@ class LightController(object):
 		self.lock = lock
 
 	def _set_light(self, light_num):
-		print(AY_LIGHT[light_num])
 		GPIO.output(PIN_S0, AY_LIGHT[light_num][0])
-		GPIO.output(PIN_S0, AY_LIGHT[light_num][1])
-		GPIO.output(PIN_S0, AY_LIGHT[light_num][2])
+		GPIO.output(PIN_S1, AY_LIGHT[light_num][1])
+		GPIO.output(PIN_S2, AY_LIGHT[light_num][2])
 
 	def reset(self):
 		pass
@@ -102,17 +101,17 @@ class LightController(object):
 			self.lock.release()
 			if state == LightState.QUIT:
 				quit()
-			time.sleep(0.1)
+			time.sleep(1)
 			self._set_light(0)
-			time.sleep(0.1)
+			time.sleep(1)
 			self._set_light(1)
-			time.sleep(0.1)
+			time.sleep(1)
 			self._set_light(2)
-			time.sleep(0.1)
+			time.sleep(1)
 			self._set_light(3)
-			time.sleep(0.1)
+			time.sleep(1)
 			self._set_light(4)
-			time.sleep(0.1)
+			time.sleep(1)
 			self._set_light(5)
 
 class ButtonController(object):
