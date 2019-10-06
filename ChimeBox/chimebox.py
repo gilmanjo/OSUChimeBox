@@ -7,6 +7,7 @@ import sys
 import pygame as pg
 import os
 import subprocess
+import threading
 import time
 
 PIN_PWR_BTN = 3
@@ -49,6 +50,10 @@ AY_CHIME = (CHIME_FN_CHAINSAW, CHIME_FN_FIGHT_SONG,
 	CHIME_FN_FIRST_DOWN, CHIME_FN_HYPE,
 	CHIME_FN_OSU, CHIME_FN_TOUCHDOWN)
 
+class LightState(enum):
+	IDLE = 1
+	PULSE = 2
+
 class MusicPlayer(object):
 	def __init__(self):
 		super(MusicPlayer, self).__init__()
@@ -70,15 +75,38 @@ class MusicPlayer(object):
 		return pg.mixer.music.get_busy()
 
 class LightController(object):
-	def __init__(self):
+	def __init__(self, lock):
 		super(LightController, self).__init__()
+		self.state = LightState.IDLE
+		self.pulser = 0
+		self.lock = lock
+
+	def _set_light(self, light_num):
+		GPIO.output(PIN_S0, AY_LIGHT[light_num][0])
+		GPIO.output(PIN_S0, AY_LIGHT[light_num][1])
+		GPIO.output(PIN_S0, AY_LIGHT[light_num][2])
 
 	def reset(self):
 		pass
 
 	def pulse(self, num):
 		pass
-		
+
+	def run(self):
+		while True:
+			time.sleep(0.02)
+			self._set_light(0)
+			time.sleep(0.02)
+			self._set_light(1)
+			time.sleep(0.02)
+			self._set_light(2)
+			time.sleep(0.02)
+			self._set_light(3)
+			time.sleep(0.02)
+			self._set_light(4)
+			time.sleep(0.02)
+			self._set_light(5)
+
 class ButtonController(object):
 	def __init__(self):
 		super(ButtonController, self).__init__()
@@ -146,13 +174,16 @@ class ChimeBox(object):
 		GPIO.setup(PIN_S1, GPIO.OUT)
 		GPIO.setup(PIN_S2, GPIO.OUT)
 
+		self.lock = threading.Lock()
 		self.music_player = MusicPlayer()
-		self.lights = LightController()
+		self.lights = LightController(self.lock)
 		self.buttons = ButtonController()
 		self.display = Display()
 
 	def run(self):
 		print("CHIME BOX:: Starting...")
+		light_thread = threading.Thread(target=self.buttons.run)
+		light_thread.start()
 		while True:
 			try:
 				time.sleep(0.02)
@@ -160,8 +191,10 @@ class ChimeBox(object):
 				self.button_pressed(pressed_button)
 				
 				if self.buttons.check_pwr_button():
+					print("CHIME BOX:: Powering off...")
 					GPIO.cleanup()
 					subprocess.call(["shutdown", "-h", "now"], shell=False)
+					quit()
 
 			except KeyboardInterrupt:
 				print("\nCHIME BOX:: Exiting...")
