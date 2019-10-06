@@ -86,12 +86,17 @@ class LightController(object):
 		self.state = LightState.IDLE
 		self.pulser = 0
 		self.lock = lock
+		self.pulse_timer = timer()
+		self.pulse_active = True
 
 	def _set_light(self, light_num):
 		GPIO.output((PIN_S0, PIN_S1, PIN_S2), AY_LIGHT[light_num])
 
 	def _set_pwr_light(self):
 		GPIO.output((PIN_S0, PIN_S1, PIN_S2), LIGHT_PWR_MUX)
+
+	def _set_lights_off(self):
+		GPIO.output((PIN_S0, PIN_S1, PIN_S2), LIGHT_NONE)
 
 	def reset(self):
 		pass
@@ -106,7 +111,15 @@ class LightController(object):
 		self._set_pwr_light()
 
 	def pulse(self, num):
-		pass
+		for i in range(6):
+			if i is not num:
+				self._set_light(i)
+			elif timer() - self.pulse_timer > 0.3:
+				self.pulse_timer = timer()
+				self.pulse_active = not self.pulse_active
+
+		if self.pulse_active:
+			self._set_light(num)
 
 	def run(self):
 		while True:
@@ -236,12 +249,19 @@ class ChimeBox(object):
 
 		self.music_player.play_audio(AY_CHIME[button_num])
 		self.display.show_img(button_num)
+		self.lock.acquire()
+		self.lights.pulser = button_num
+		self.lights.state = LightState.PULSE
+		self.lock.release()
 
 		while self.music_player.playing() and self.buttons.check_button_matrix() != button_num:
-			time.sleep(0.02)
+			#time.sleep(0.02)
 			self.lights.pulse(button_num)
-		self.music_player.stop()
 
+		self.music_player.stop()
+		self.lock.acquire()
+		self.lights.state = LightState.IDLE
+		self.lock.release()
 		self.lights.reset()
 		self.display.reset()
 
