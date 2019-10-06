@@ -55,6 +55,7 @@ class MusicPlayer(object):
 		self.bitsize = -16
 		self.channels = 2
 		self.buffer = 2048
+		pg.mixer.init(self.freq, self.bitsize, self.channels, self.buffer)
 
 	def play_audio(self, audio_file):
 		clock = pg.time.Clock()
@@ -89,22 +90,28 @@ class ButtonController(object):
 	def check_button_matrix(self):
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
+			print("button 0 pressed")
 			return 0
 		elif GPIO.input(PIN_BC1) == 0:
+			print("button 1 pressed")
 			return 1
 
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 0)
 		if GPIO.input(PIN_BC0) == 0:
+			print("button 2 pressed")
 			return 2
 		elif GPIO.input(PIN_BC1) == 0:
+			print("button 3 pressed")
 			return 3
 
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 0)
 		if GPIO.input(PIN_BC0) == 0:
+			print("button 4 pressed")
 			return 4
 		elif GPIO.input(PIN_BC1) == 0:
+			print("button 5 pressed")
 			return 5
 
 		GPIO.output(PIN_BR2, 1)
