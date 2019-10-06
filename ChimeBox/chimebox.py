@@ -166,31 +166,31 @@ class ButtonController(object):
 
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			_update_selection(0)
+			self._update_selection(0)
 			return
 		elif GPIO.input(PIN_BC1) == 0:
-			_update_selection(1)
+			self._update_selection(1)
 			return
 
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			_update_selection(2)
+			self._update_selection(2)
 			return
 		elif GPIO.input(PIN_BC1) == 0:
-			_update_selection(3)
+			self._update_selection(3)
 			return
 
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			_update_selection(4)
+			self._update_selection(4)
 			return
 		elif GPIO.input(PIN_BC1) == 0:
-			_update_selection(5)
+			self._update_selection(5)
 			return
 
-		_update_selection(-1)
+		self._update_selection(-1)
 
 	def check_pwr_button(self):
 		return not GPIO.input(PIN_PWR_BTN)
