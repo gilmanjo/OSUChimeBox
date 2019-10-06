@@ -27,10 +27,10 @@ PIN_BC1 = 12
 LIGHT_0_MUX = (0, 0, 0)
 LIGHT_1_MUX = (1, 0, 0)
 LIGHT_2_MUX = (0, 1, 0)
-LIGHT_3_MUX = (0, 1, 1)
+LIGHT_3_MUX = (1, 1, 0)
 LIGHT_4_MUX = (0, 0, 1)
 LIGHT_5_MUX = (1, 0, 1)
-LIGHT_PWR_MUX = (1, 1, 0)
+LIGHT_PWR_MUX = (0, 1, 1)
 LIGHT_NONE = (1, 1, 1)
 
 SPI_PORT = 0
@@ -119,10 +119,11 @@ class LightController(object):
 			self._set_light(num)
 
 		self._set_pwr_light()
+		self._set_lights_off()
 
 	def run(self):
 		while True:
-			#time.sleep(0.01)
+			self._set_lights_off()
 			self.lock.acquire()
 			state = self.state
 			self.lock.release()
