@@ -183,7 +183,7 @@ class ChimeBox(object):
 
 	def run(self):
 		print("CHIME BOX:: Starting...")
-		light_thread = threading.Thread(target=self.buttons.run)
+		light_thread = threading.Thread(target=self.lights.run)
 		light_thread.start()
 		while True:
 			try:
