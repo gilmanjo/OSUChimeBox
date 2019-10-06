@@ -145,34 +145,28 @@ class ButtonController(object):
 		self.debounce = timer()
 
 	def check_button_matrix(self):
-		if (timer() - self.debounce < 0):
+		if (timer() - self.debounce < 2):
 			return -1
 
 		self.debounce = timer()
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			print("BUTTON CONTROLLER:: Button 0 pressed")
 			return 0
 		elif GPIO.input(PIN_BC1) == 0:
-			print("BUTTON CONTROLLER:: Button 1 pressed")
 			return 1
 
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			print("BUTTON CONTROLLER:: Button 2 pressed")
 			return 2
 		elif GPIO.input(PIN_BC1) == 0:
-			print("BUTTON CONTROLLER:: Button 3 pressed")
 			return 3
 
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			print("BUTTON CONTROLLER:: Button 4 pressed")
 			return 4
 		elif GPIO.input(PIN_BC1) == 0:
-			print("BUTTON CONTROLLER:: Button 5 pressed")
 			return 5
 
 		GPIO.output(PIN_BR2, 1)
@@ -258,7 +252,7 @@ class ChimeBox(object):
 			#time.sleep(0.02)
 			self.lights.pulse(button_num)
 
-		self.music_player.stop()
+		self.music_player.stop_audio()
 		self.lock.acquire()
 		self.lights.state = LightState.IDLE
 		self.lock.release()
