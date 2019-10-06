@@ -70,7 +70,7 @@ class MusicPlayer(object):
 		print("MUSIC PLAYER:: Playing audio file: " + audio_file)
 		clock = pg.time.Clock()
 		pg.mixer.music.set_endevent(SONG_END)
-		pg.mixer.music.set_volume(0.25)
+		pg.mixer.music.set_volume(0.2)
 		pg.mixer.music.load(audio_file)
 		pg.mixer.music.play()
 
@@ -112,17 +112,16 @@ class LightController(object):
 
 	def pulse(self, num):
 		for i in range(6):
-			if i is not num:
-				self._set_light(i)
-			elif timer() - self.pulse_timer > 0.3:
-				self.pulse_timer = timer()
-				self.pulse_active = not self.pulse_active
+		if timer() - self.pulse_timer > 0.3:
+			self.pulse_timer = timer()
+			self.pulse_active = not self.pulse_active
 
 		if self.pulse_active:
 			self._set_light(num)
 
 	def run(self):
 		while True:
+			time.sleep(0.01)
 			self.lock.acquire()
 			state = self.state
 			self.lock.release()
@@ -139,38 +138,58 @@ class LightController(object):
 class ButtonController(object):
 	def __init__(self):
 		super(ButtonController, self).__init__()
+		GPIO.output(PIN_BR0, 0)
+		GPIO.output(PIN_BR1, 0)
+		GPIO.output(PIN_BR2, 0)
+		self.debounce = timer()
+		self.selected_button = -1
+
+		GPIO.add_event_detect(PIN_BC0, GPIO.FALLING, callback=self.check_button_matrix, bouncetime=200)
+		GPIO.add_event_detect(PIN_BC1, GPIO.FALLING, callback=self.check_button_matrix, bouncetime=200)
+
+	def _update_selection(self, num):
+		self.selected_button = num
+		GPIO.output(PIN_BR0, 0)
+		GPIO.output(PIN_BR1, 0)
+		GPIO.output(PIN_BR2, 0)
+
+	def check_button_matrix(self):
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 1)
-		self.debounce = timer()
 
-	def check_button_matrix(self):
 		if (timer() - self.debounce < 0.6):
-			return -1
+			return
 
 		self.debounce = timer()
+		
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			return 0
+			_update_selection(0)
+			return
 		elif GPIO.input(PIN_BC1) == 0:
-			return 1
+			_update_selection(1)
+			return
 
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			return 2
+			_update_selection(2)
+			return
 		elif GPIO.input(PIN_BC1) == 0:
-			return 3
+			_update_selection(3)
+			return
 
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			return 4
+			_update_selection(4)
+			return
 		elif GPIO.input(PIN_BC1) == 0:
-			return 5
+			_update_selection(5)
+			return
 
-		GPIO.output(PIN_BR2, 1)
-		return -1
+		_update_selection(-1)
 
 	def check_pwr_button(self):
 		return not GPIO.input(PIN_PWR_BTN)
@@ -222,8 +241,10 @@ class ChimeBox(object):
 		while True:
 			try:
 				time.sleep(0.02)
-				pressed_button = self.buttons.check_button_matrix()
-				self.button_pressed(pressed_button)
+
+				if self.buttons.selected_button != -1:
+					self.button_pressed(pressed_button)
+					self.buttons.selected_button = -1
 				
 				if self.buttons.check_pwr_button():
 					print("CHIME BOX:: Powering off...")
@@ -249,7 +270,7 @@ class ChimeBox(object):
 		self.lock.release()
 
 		while self.music_player.playing() and self.buttons.check_button_matrix() != button_num:
-			time.sleep(0.1)
+			time.sleep(0.01)
 			self.lights.pulse(button_num)
 
 		self.music_player.stop_audio()
