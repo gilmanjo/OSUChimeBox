@@ -10,6 +10,7 @@ import os
 import subprocess
 import threading
 import time
+from timeit import default_timer as timer
 
 PIN_PWR_BTN = 3
 PIN_S0 = 4
@@ -73,6 +74,9 @@ class MusicPlayer(object):
 		pg.mixer.music.load(audio_file)
 		pg.mixer.music.play()
 
+	def stop_audio(self):
+		pg.mixer.music.stop()
+
 	def playing(self):
 		return pg.mixer.music.get_busy()
 
@@ -84,14 +88,10 @@ class LightController(object):
 		self.lock = lock
 
 	def _set_light(self, light_num):
-		GPIO.output(PIN_S0, AY_LIGHT[light_num][0])
-		GPIO.output(PIN_S1, AY_LIGHT[light_num][1])
-		GPIO.output(PIN_S2, AY_LIGHT[light_num][2])
+		GPIO.output((PIN_S0, PIN_S1, PIN_S2), AY_LIGHT[light_num])
 
 	def _set_pwr_light(self):
-		GPIO.output(PIN_S0, LIGHT_PWR_MUX[0])
-		GPIO.output(PIN_S1, LIGHT_PWR_MUX[1])
-		GPIO.output(PIN_S2, LIGHT_PWR_MUX[2])
+		GPIO.output((PIN_S0, PIN_S1, PIN_S2), LIGHT_PWR_MUX)
 
 	def reset(self):
 		pass
@@ -129,8 +129,13 @@ class ButtonController(object):
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 1)
+		self.debounce = timer()
 
 	def check_button_matrix(self):
+		if (timer() - self.debounce < 0):
+			return -1
+
+		self.debounce = timer()
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
 			print("BUTTON CONTROLLER:: Button 0 pressed")
@@ -196,6 +201,13 @@ class ChimeBox(object):
 		self.buttons = ButtonController()
 		self.display = Display()
 
+	def _deinit(self, light_thread):
+		self.lock.acquire()
+		self.lights.state = LightState.QUIT
+		self.lock.release()
+		light_thread.join()
+		GPIO.cleanup()
+
 	def run(self):
 		print("CHIME BOX:: Starting...")
 		light_thread = threading.Thread(target=self.lights.run)
@@ -208,19 +220,13 @@ class ChimeBox(object):
 				
 				if self.buttons.check_pwr_button():
 					print("CHIME BOX:: Powering off...")
-					GPIO.cleanup()
-					self.lock.acquire()
-					self.lights.state = LightState.QUIT
-					self.lock.release()
+					self._deinit(light_thread)
 					subprocess.call(["shutdown", "-h", "now"], shell=False)
 					quit()
 
 			except KeyboardInterrupt:
 				print("\nCHIME BOX:: Exiting...")
-				self.lock.acquire()
-				self.lights.state = LightState.QUIT
-				self.lock.release()
-				GPIO.cleanup()
+				self._deinit(light_thread)
 				quit()
 
 	def button_pressed(self, button_num):
@@ -234,6 +240,7 @@ class ChimeBox(object):
 		while self.music_player.playing() and self.buttons.check_button_matrix() != button_num:
 			time.sleep(0.02)
 			self.lights.pulse(button_num)
+		self.music_player.stop()
 
 		self.lights.reset()
 		self.display.reset()
