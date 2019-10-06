@@ -244,7 +244,7 @@ class ChimeBox(object):
 				time.sleep(0.02)
 
 				if self.buttons.selected_button != -1:
-					self.button_pressed(pressed_button)
+					self.button_pressed(self.buttons.selected_button)
 					self.buttons.selected_button = -1
 				
 				if self.buttons.check_pwr_button():
