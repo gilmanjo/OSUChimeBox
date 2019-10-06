@@ -6,6 +6,7 @@ import Adafruit_GPIO.SPI as SPI
 import sys
 import pygame as pg
 import os
+import subprocess
 import time
 
 PIN_PWR_BTN = 3
@@ -61,7 +62,7 @@ class MusicPlayer(object):
 		print("MUSIC PLAYER:: Playing audio file: " + audio_file)
 		clock = pg.time.Clock()
 		pg.mixer.music.set_endevent(SONG_END)
-		pg.mixer.music.set_volume(0.5)
+		pg.mixer.music.set_volume(0.25)
 		pg.mixer.music.load(audio_file)
 		pg.mixer.music.play()
 
@@ -160,6 +161,7 @@ class ChimeBox(object):
 				
 				if self.buttons.check_pwr_button():
 					GPIO.cleanup()
+					subprocess.call(["shutdown", "-h", "now"], shell=False)
 
 			except KeyboardInterrupt:
 				print("\nCHIME BOX:: Exiting...")
@@ -174,7 +176,7 @@ class ChimeBox(object):
 		self.music_player.play_audio(AY_CHIME[button_num])
 		self.display.show_img(button_num)
 
-		while self.music_player.playing():
+		while self.music_player.playing() and self.buttons.check_button_matrix() != button_num:
 			time.sleep(0.02)
 			self.lights.pulse(button_num)
 
