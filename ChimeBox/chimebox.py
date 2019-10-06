@@ -54,6 +54,7 @@ AY_CHIME = (CHIME_FN_CHAINSAW, CHIME_FN_FIGHT_SONG,
 class LightState(Enum):
 	IDLE = 1
 	PULSE = 2
+	QUIT = 3
 
 class MusicPlayer(object):
 	def __init__(self):
@@ -83,6 +84,7 @@ class LightController(object):
 		self.lock = lock
 
 	def _set_light(self, light_num):
+		print(AY_LIGHT)
 		GPIO.output(PIN_S0, AY_LIGHT[light_num][0])
 		GPIO.output(PIN_S0, AY_LIGHT[light_num][1])
 		GPIO.output(PIN_S0, AY_LIGHT[light_num][2])
@@ -95,6 +97,11 @@ class LightController(object):
 
 	def run(self):
 		while True:
+			self.lock.acquire()
+			state = self.state
+			self.lock.release()
+			if state = LightState.QUIT:
+				quit()
 			time.sleep(0.02)
 			self._set_light(0)
 			time.sleep(0.02)
@@ -194,11 +201,17 @@ class ChimeBox(object):
 				if self.buttons.check_pwr_button():
 					print("CHIME BOX:: Powering off...")
 					GPIO.cleanup()
+					self.lock.acquire()
+					self.lights.state = LightState.QUIT
+					self.lock.release()
 					subprocess.call(["shutdown", "-h", "now"], shell=False)
 					quit()
 
 			except KeyboardInterrupt:
 				print("\nCHIME BOX:: Exiting...")
+				self.lock.acquire()
+				self.lights.state = LightState.QUIT
+				self.lock.release()
 				GPIO.cleanup()
 				quit()
 
