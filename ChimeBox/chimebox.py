@@ -145,7 +145,7 @@ class ButtonController(object):
 		self.debounce = timer()
 
 	def check_button_matrix(self):
-		if (timer() - self.debounce < 2):
+		if (timer() - self.debounce < 0.6):
 			return -1
 
 		self.debounce = timer()
@@ -249,7 +249,7 @@ class ChimeBox(object):
 		self.lock.release()
 
 		while self.music_player.playing() and self.buttons.check_button_matrix() != button_num:
-			#time.sleep(0.02)
+			time.sleep(0.1)
 			self.lights.pulse(button_num)
 
 		self.music_player.stop_audio()
