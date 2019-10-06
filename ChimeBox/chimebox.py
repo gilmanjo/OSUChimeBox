@@ -58,9 +58,10 @@ class MusicPlayer(object):
 		pg.mixer.init(self.freq, self.bitsize, self.channels, self.buffer)
 
 	def play_audio(self, audio_file):
+		print("MUSIC PLAYER:: Playing audio file: " + audio_file)
 		clock = pg.time.Clock()
 		pg.mixer.music.set_endevent(SONG_END)
-		pg.mixer.music.set_volume(1.0)
+		pg.mixer.music.set_volume(0.5)
 		pg.mixer.music.load(audio_file)
 		pg.mixer.music.play()
 
@@ -87,28 +88,28 @@ class ButtonController(object):
 	def check_button_matrix(self):
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			print("button 0 pressed")
+			print("BUTTON CONTROLLER:: Button 0 pressed")
 			return 0
 		elif GPIO.input(PIN_BC1) == 0:
-			print("button 1 pressed")
+			print("BUTTON CONTROLLER:: Button 1 pressed")
 			return 1
 
 		GPIO.output(PIN_BR0, 1)
 		GPIO.output(PIN_BR1, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			print("button 2 pressed")
+			print("BUTTON CONTROLLER:: Button 2 pressed")
 			return 2
 		elif GPIO.input(PIN_BC1) == 0:
-			print("button 3 pressed")
+			print("BUTTON CONTROLLER:: Button 3 pressed")
 			return 3
 
 		GPIO.output(PIN_BR1, 1)
 		GPIO.output(PIN_BR2, 0)
 		if GPIO.input(PIN_BC0) == 0:
-			print("button 4 pressed")
+			print("BUTTON CONTROLLER:: Button 4 pressed")
 			return 4
 		elif GPIO.input(PIN_BC1) == 0:
-			print("button 5 pressed")
+			print("BUTTON CONTROLLER:: Button 5 pressed")
 			return 5
 
 		GPIO.output(PIN_BR2, 1)
@@ -131,7 +132,8 @@ class ChimeBox(object):
 	def __init__(self):
 		super(ChimeBox, self).__init__()
 
-		print("initializing chime box...")
+		print("CHIME BOX:: Initializing...")
+		GPIO.setwarnings(False)
 		GPIO.setmode(GPIO.BCM)
 		GPIO.setup(PIN_PWR_BTN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 		GPIO.setup(PIN_BR0, GPIO.OUT)
@@ -149,7 +151,7 @@ class ChimeBox(object):
 		self.display = Display()
 
 	def run(self):
-		print("chime box running")
+		print("CHIME BOX:: Starting...")
 		while True:
 			try:
 				time.sleep(0.02)
@@ -160,7 +162,7 @@ class ChimeBox(object):
 					GPIO.cleanup()
 
 			except KeyboardInterrupt:
-				print("Exiting...")
+				print("\nCHIME BOX:: Exiting...")
 				GPIO.cleanup()
 				quit()
 
