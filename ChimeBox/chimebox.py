@@ -122,7 +122,7 @@ class LightController(object):
 
 	def run(self):
 		while True:
-			time.sleep(0.01)
+			#time.sleep(0.01)
 			self.lock.acquire()
 			state = self.state
 			self.lock.release()
@@ -270,7 +270,7 @@ class ChimeBox(object):
 		self.lights.state = LightState.PULSE
 		self.lock.release()
 
-		while self.music_player.playing() and self.buttons.check_button_matrix() != button_num:
+		while self.music_player.playing() and self.buttons.selected_button != button_num:
 			time.sleep(0.01)
 			self.lights.pulse(button_num)
 
