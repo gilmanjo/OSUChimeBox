@@ -24,10 +24,10 @@ PIN_BC0 = 6
 PIN_BC1 = 12
 
 LIGHT_0_MUX = (0, 0, 0)
-LIGHT_1_MUX = (0, 0, 1)
+LIGHT_1_MUX = (1, 0, 0)
 LIGHT_2_MUX = (0, 1, 0)
 LIGHT_3_MUX = (0, 1, 1)
-LIGHT_4_MUX = (1, 0, 0)
+LIGHT_4_MUX = (0, 0, 1)
 LIGHT_5_MUX = (1, 0, 1)
 LIGHT_PWR_MUX = (1, 1, 0)
 LIGHT_NONE = (1, 1, 1)
@@ -98,19 +98,19 @@ class LightController(object):
 		pass
 
 	def idle(self):
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_light(0)
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_light(1)
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_light(2)
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_light(3)
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_light(4)
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_light(5)
-		time.sleep(1)
+		time.sleep(0.01)
 		self._set_pwr_light()
 
 	def pulse(self, num):
