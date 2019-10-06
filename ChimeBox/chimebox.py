@@ -111,7 +111,6 @@ class LightController(object):
 		self._set_pwr_light()
 
 	def pulse(self, num):
-		for i in range(6):
 		if timer() - self.pulse_timer > 0.3:
 			self.pulse_timer = timer()
 			self.pulse_active = not self.pulse_active
@@ -162,7 +161,7 @@ class ButtonController(object):
 			return
 
 		self.debounce = timer()
-		
+
 		GPIO.output(PIN_BR0, 0)
 		if GPIO.input(PIN_BC0) == 0:
 			_update_selection(0)
